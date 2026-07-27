@@ -7,17 +7,13 @@ from aiogram.exceptions import TelegramNetworkError
 import config
 from handlers import setup_routers
 
-RECONNECT_MIN_DELAY = 10    # секунд перед первой повторной попыткой
-RECONNECT_MAX_DELAY = 300   # потолок задержки между попытками (5 минут)
-ALERT_AFTER_FAILURES = 3    # после скольких неудач подряд слать оповещение
+RECONNECT_MIN_DELAY = 10
+RECONNECT_MAX_DELAY = 300
+ALERT_AFTER_FAILURES = 3
 
 
 async def send_alert(text: str):
-    """
-    Best-effort отправка оповещения администратору отдельной короткоживущей сессией.
-    Если сама отправка не удалась (например, прокси совсем не работает) —
-    просто логируем и не роняем основной цикл переподключения.
-    """
+    
     if not config.ADMIN_CHAT_ID:
         return
     session = AiohttpSession(proxy=config.SOCKS5_PROXY)
@@ -50,7 +46,6 @@ async def run_bot():
             failures_in_a_row = 0
 
             await dp.start_polling(bot)
-            # start_polling завершился без исключения (штатная остановка) — выходим из цикла
             break
 
         except (TelegramNetworkError, ConnectionError, OSError) as err:
